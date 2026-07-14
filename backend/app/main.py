@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from app.api.v1.routers.requirement import router as requirement_router
 from app.api.v1.routers.project import router as project_router
 from app.core.config import settings
 from app.database.init_db import check_database
@@ -12,6 +12,10 @@ app = FastAPI(
 
 # Register API routers
 app.include_router(project_router, prefix="/api/v1")
+app.include_router(
+    requirement_router,
+    prefix="/api/v1",
+)
 
 
 @app.get("/")
@@ -31,3 +35,5 @@ def health():
 @app.on_event("startup")
 def startup():
     check_database()
+
+    
