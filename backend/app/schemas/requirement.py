@@ -11,10 +11,12 @@ class RequirementResponse(BaseModel):
     project_id: uuid.UUID
     title: str
     description: str | None
+    extracted_text: str | None
     document_name: str | None
     document_path: str | None
     status: str
     created_at: datetime
     updated_at: datetime
+    
 
     model_config = ConfigDict(from_attributes=True)
