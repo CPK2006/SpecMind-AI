@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
 
     # AI
-    gemini_api_key: str = ""
+    gemini_api_key: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

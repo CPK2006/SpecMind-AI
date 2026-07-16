@@ -44,10 +44,11 @@ class Requirement(Base):
         String(500),
         nullable=True,
     )
+
     extracted_text: Mapped[str | None] = mapped_column(
-    Text,
-    nullable=True,
-)
+        Text,
+        nullable=True,
+    )
 
     status: Mapped[str] = mapped_column(
         String(50),
