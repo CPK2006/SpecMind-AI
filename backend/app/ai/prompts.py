@@ -35,3 +35,55 @@ Document:
 
 {document}
 """
+
+
+USER_STORY_PROMPT = """
+You are a Senior Business Analyst.
+
+Generate user stories from the following software requirements.
+
+Return ONLY valid JSON.
+
+Required format:
+
+{{
+  "user_stories": [
+    {{
+      "title": "User Login",
+      "story": "As a user, I want to log in so that I can access my account."
+    }}
+  ]
+}}
+
+Document:
+
+{document}
+"""
+TEST_CASE_PROMPT = """
+You are a Senior QA Engineer.
+
+Generate software test cases from the following Software Requirements Specification.
+
+Return ONLY valid JSON.
+
+Required format:
+
+{{
+  "test_cases": [
+    {{
+      "id": "TC-001",
+      "requirement": "...",
+      "precondition": "...",
+      "steps": [
+        "...",
+        "..."
+      ],
+      "expected_result": "..."
+    }}
+  ]
+}}
+
+Document:
+
+{document}
+"""

@@ -80,3 +80,26 @@ class RequirementService:
         )
 
         return result
+    
+    @staticmethod
+    def generate_test_cases(
+        db: Session,
+        requirement_id: uuid.UUID,
+    ) -> dict:
+    
+        requirement = RequirementRepository.get_requirement_by_id(
+            db,
+            requirement_id,
+        )
+    
+        if requirement is None:
+            raise ValueError("Requirement not found.")
+    
+        if not requirement.extracted_text:
+            raise ValueError("No extracted text found.")
+    
+        gemini = GeminiService()
+    
+        return gemini.generate_test_cases(
+            requirement.extracted_text,
+        )

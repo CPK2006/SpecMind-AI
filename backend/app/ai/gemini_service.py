@@ -1,12 +1,14 @@
 from __future__ import annotations
-from email.mime import text
+
 import json
 
-from click import prompt
 from google import genai
 
+from app.ai.prompts import (
+    REQUIREMENT_ANALYSIS_PROMPT,
+    TEST_CASE_PROMPT,
+)
 from app.core.config import settings
-from app.ai.prompts import REQUIREMENT_ANALYSIS_PROMPT
 
 
 class GeminiService:
@@ -23,7 +25,7 @@ class GeminiService:
         )
 
         return response.text.strip()
-    
+
     def analyze_requirements(
         self,
         document: str,
@@ -41,9 +43,33 @@ class GeminiService:
         text = response.text.strip()
 
         if text.startswith("```json"):
-             text = text.replace("```json", "", 1)
+            text = text.replace("```json", "", 1)
 
         if text.endswith("```"):
-             text = text[:-3]
+            text = text[:-3]
+
+        return json.loads(text.strip())
+
+    def generate_test_cases(
+        self,
+        document: str,
+    ) -> dict:
+
+        prompt = TEST_CASE_PROMPT.format(
+            document=document,
+        )
+
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+
+        text = response.text.strip()
+
+        if text.startswith("```json"):
+            text = text.replace("```json", "", 1)
+
+        if text.endswith("```"):
+            text = text[:-3]
 
         return json.loads(text.strip())
