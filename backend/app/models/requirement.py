@@ -49,6 +49,10 @@ class Requirement(Base):
         Text,
         nullable=True,
     )
+    analysis_result: Mapped[str | None] = mapped_column(
+    Text,
+    nullable=True,
+)
 
     status: Mapped[str] = mapped_column(
         String(50),

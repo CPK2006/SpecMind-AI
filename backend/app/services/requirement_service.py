@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 
 from fastapi import UploadFile
@@ -10,6 +11,7 @@ from app.models.requirement import Requirement
 from app.repositories.requirement_repository import RequirementRepository
 from app.utils.document_parser import extract_text
 from app.utils.file_storage import save_uploaded_file
+
 
 class RequirementService:
 
@@ -23,26 +25,26 @@ class RequirementService:
     ) -> Requirement:
 
         document_name, document_path = save_uploaded_file(file)
+
         try:
             extracted_text = extract_text(document_path)
         except Exception:
             extracted_text = None
 
         requirement = Requirement(
-         project_id=project_id,
-        title=title,
-        description=description,
-        document_name=document_name,
-        document_path=document_path,
-        extracted_text=extracted_text,
-        status="Uploaded",
-    )
+            project_id=project_id,
+            title=title,
+            description=description,
+            document_name=document_name,
+            document_path=document_path,
+            extracted_text=extracted_text,
+            status="Uploaded",
+        )
 
         return RequirementRepository.create_requirement(
             db,
             requirement,
         )
-    
 
     @staticmethod
     def analyze_requirement(
@@ -61,8 +63,20 @@ class RequirementService:
         if not requirement.extracted_text:
             raise ValueError("No extracted text found.")
 
+        # Return cached analysis if available
+        if requirement.analysis_result:
+            return json.loads(requirement.analysis_result)
+
         gemini = GeminiService()
 
-        return gemini.analyze_requirements(
+        result = gemini.analyze_requirements(
             requirement.extracted_text,
         )
+
+        RequirementRepository.save_analysis_result(
+            db,
+            requirement,
+            json.dumps(result),
+        )
+
+        return result
