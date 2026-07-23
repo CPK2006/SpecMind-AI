@@ -87,3 +87,40 @@ Document:
 
 {document}
 """
+REQUIREMENT_QUALITY_PROMPT = """
+You are a Senior Requirements Engineer.
+
+Review the following software requirements.
+
+Identify:
+
+- Ambiguous wording
+- Missing information
+- Non-measurable statements
+- Conflicting requirements
+- Weak wording
+
+Return ONLY valid JSON.
+
+Required format:
+
+{{
+  "quality_score": 0,
+  "issues": [
+    {{
+      "requirement": "...",
+      "type": "...",
+      "severity": "...",
+      "reason": "...",
+      "suggestion": "..."
+    }}
+  ],
+  "improved_requirements": [
+    "..."
+  ]
+}}
+
+Document:
+
+{document}
+"""

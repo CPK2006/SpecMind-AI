@@ -37,10 +37,38 @@ class RequirementRepository:
     def save_analysis_result(
         db: Session,
         requirement: Requirement,
-        analysis_result: str,
+        result: str,
     ) -> Requirement:
 
-        requirement.analysis_result = analysis_result
+        requirement.analysis_result = result
+
+        db.commit()
+        db.refresh(requirement)
+
+        return requirement
+
+    @staticmethod
+    def save_test_cases_result(
+        db: Session,
+        requirement: Requirement,
+        result: str,
+    ) -> Requirement:
+
+        requirement.test_cases_result = result
+
+        db.commit()
+        db.refresh(requirement)
+
+        return requirement
+
+    @staticmethod
+    def save_quality_result(
+        db: Session,
+        requirement: Requirement,
+        result: str,
+    ) -> Requirement:
+
+        requirement.quality_result = result
 
         db.commit()
         db.refresh(requirement)

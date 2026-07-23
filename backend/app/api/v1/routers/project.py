@@ -1,15 +1,15 @@
 from __future__ import annotations
-
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
+from app.schemas.api_response import APIResponse
 from app.schemas.project import (
     ProjectCreate,
-    ProjectResponse,
     ProjectUpdate,
+    ProjectResponse,
 )
 from app.services.project_service import ProjectService
 
@@ -21,7 +21,7 @@ router = APIRouter(
 
 @router.post(
     "",
-    response_model=ProjectResponse,
+    response_model=APIResponse[ProjectResponse],
     status_code=status.HTTP_201_CREATED,
 )
 def create_project(
@@ -29,7 +29,14 @@ def create_project(
     db: Session = Depends(get_db),
 ):
     try:
-        return ProjectService.create_project(db, project)
+        result = ProjectService.create_project(db, project)
+
+        return APIResponse[ProjectResponse](
+            success=True,
+            message="Project created successfully.",
+            data=ProjectResponse.model_validate(result),
+        )
+
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,17 +46,26 @@ def create_project(
 
 @router.get(
     "",
-    response_model=list[ProjectResponse],
+    response_model=APIResponse[list[ProjectResponse]],
 )
 def list_projects(
     db: Session = Depends(get_db),
 ):
-    return ProjectService.list_projects(db)
+    result = ProjectService.list_projects(db)
+
+    return APIResponse[list[ProjectResponse]](
+    success=True,
+    message="Projects retrieved successfully.",
+    data=[
+        ProjectResponse.model_validate(project)
+        for project in result
+    ],
+)
 
 
 @router.get(
     "/{project_id}",
-    response_model=ProjectResponse,
+    response_model=APIResponse[ProjectResponse],
 )
 def get_project(
     project_id: uuid.UUID,
@@ -66,12 +82,16 @@ def get_project(
             detail="Project not found.",
         )
 
-    return project
+    return APIResponse(
+        success=True,
+        message="Project retrieved successfully.",
+        data=project,
+    )
 
 
 @router.put(
     "/{project_id}",
-    response_model=ProjectResponse,
+    response_model=APIResponse[ProjectResponse],
 )
 def update_project(
     project_id: uuid.UUID,
@@ -89,16 +109,22 @@ def update_project(
             detail="Project not found.",
         )
 
-    return ProjectService.update_project(
+    result = ProjectService.update_project(
         db,
         db_project,
         project,
     )
 
+    return APIResponse[ProjectResponse](
+    success=True,
+    message="Project updated successfully.",
+    data=ProjectResponse.model_validate(result),
+)
+
 
 @router.delete(
     "/{project_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=APIResponse[None],
 )
 def delete_project(
     project_id: uuid.UUID,
@@ -118,4 +144,10 @@ def delete_project(
     ProjectService.delete_project(
         db,
         db_project,
+    )
+
+    return APIResponse(
+        success=True,
+        message="Project deleted successfully.",
+        data=None,
     )

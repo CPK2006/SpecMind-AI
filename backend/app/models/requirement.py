@@ -49,10 +49,24 @@ class Requirement(Base):
         Text,
         nullable=True,
     )
+
+    # Cached AI Analysis
     analysis_result: Mapped[str | None] = mapped_column(
-    Text,
-    nullable=True,
-)
+        Text,
+        nullable=True,
+    )
+
+    # Cached Test Cases
+    test_cases_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    # Cached Quality Report
+    quality_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
 
     status: Mapped[str] = mapped_column(
         String(50),
