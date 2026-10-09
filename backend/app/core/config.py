@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,7 +17,23 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
 
     # AI
-    gemini_api_key: str
+    gemini_api_key: str = ""
+    gemini_api_keys: str = ""
+    nvidia_api_key: str = ""
+    nvidia_model: str = "z-ai/glm-5.3"
+    openrouter_api_key: str = ""
+    openrouter_model: str = "openrouter/auto"
+
+    @field_validator("debug", mode="before")
+    @classmethod
+    def parse_debug_mode(cls, value):
+        if isinstance(value, str):
+            normalized = value.strip().casefold()
+            if normalized in {"release", "production", "prod"}:
+                return False
+            if normalized in {"debug", "development", "dev"}:
+                return True
+        return value
 
     model_config = SettingsConfigDict(
         env_file=".env",

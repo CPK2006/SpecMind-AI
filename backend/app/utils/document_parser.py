@@ -15,7 +15,7 @@ def extract_pdf_text(file_path: str) -> str:
     text = ""
 
     for page in document:
-        text += page.get_text()
+        text += page.get_text() + "\n\n"
 
     document.close()
 
@@ -28,12 +28,22 @@ def extract_docx_text(file_path: str) -> str:
     """
     document = Document(file_path)
 
-    text = "\n".join(
-        paragraph.text
-        for paragraph in document.paragraphs
-    )
+    blocks: list[str] = []
+    for content in document.iter_inner_content():
+        if hasattr(content, "rows"):
+            for row in content.rows:
+                cells = [cell.text.strip().replace("\n", " ") for cell in row.cells]
+                if any(cells):
+                    blocks.append(" | ".join(cells))
+        elif getattr(content, "text", "").strip():
+            blocks.append(content.text.strip())
 
-    return text.strip()
+    for section in document.sections:
+        for label, container in (("Header", section.header), ("Footer", section.footer)):
+            text = "\n".join(p.text.strip() for p in container.paragraphs if p.text.strip())
+            if text:
+                blocks.append(f"{label}: {text}")
+    return "\n\n".join(blocks).strip()
 
 
 def extract_text(file_path: str) -> str:

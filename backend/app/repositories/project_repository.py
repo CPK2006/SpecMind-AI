@@ -16,6 +16,8 @@ class ProjectRepository:
             name=project.name,
             description=project.description,
             project_type=project.project_type,
+            creation_mode=project.creation_mode,
+            idea_pitch=project.idea_pitch,
         )
 
         db.add(db_project)
@@ -63,3 +65,11 @@ class ProjectRepository:
     ) -> None:
         db.delete(db_project)
         db.commit()
+
+    @staticmethod
+    def save_generated_srs(db: Session, project: Project, result: str) -> Project:
+        project.generated_srs_result = result
+        project.status = "Complete"
+        db.commit()
+        db.refresh(project)
+        return project

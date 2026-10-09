@@ -68,6 +68,21 @@ class Requirement(Base):
         nullable=True,
     )
 
+    refactored_srs_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    clarification_questions_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    improvement_report_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
     status: Mapped[str] = mapped_column(
         String(50),
         default="Uploaded",

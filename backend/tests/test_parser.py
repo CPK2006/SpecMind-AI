@@ -1,10 +1,13 @@
 from app.utils.document_parser import extract_text
 
-# Replace this with one of the uploaded PDF/DOCX files
-file_path = "uploads/pdf/f33ab59b-6f70-4660-9f90-a5be282f7be6.pdf"
 
-text = extract_text(file_path)
+def test_extract_text_rejects_unsupported_extensions(tmp_path):
+    source = tmp_path / "requirements.txt"
+    source.write_text("Not a supported SRS file", encoding="utf-8")
 
-print("=" * 80)
-print(text)
-print("=" * 80)
+    try:
+        extract_text(str(source))
+    except ValueError as error:
+        assert "Unsupported file type" in str(error)
+    else:
+        raise AssertionError("Unsupported file extensions must be rejected")

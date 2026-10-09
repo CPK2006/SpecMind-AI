@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.routers.requirement import router as requirement_router
 from app.api.v1.routers.project import router as project_router
 from app.core.config import settings
@@ -13,6 +14,14 @@ app = FastAPI(
 
 # Register global exception handlers
 register_exception_handlers(app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Register API routers
 app.include_router(project_router, prefix="/api/v1")

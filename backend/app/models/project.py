@@ -33,6 +33,22 @@ class Project(Base):
         nullable=False,
     )
 
+    creation_mode: Mapped[str] = mapped_column(
+        String(20),
+        default="upload",
+        nullable=False,
+    )
+
+    idea_pitch: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    generated_srs_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
     status: Mapped[str] = mapped_column(
         String(50),
         default="Draft",
