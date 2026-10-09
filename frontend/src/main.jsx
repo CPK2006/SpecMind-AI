@@ -284,8 +284,14 @@ function WorkspacePage({ projectId, user, onLogout, onBack }) {
     setState({ status: 'loading', message: 'Retrying SRS generation...' });
     try {
       const response = await api.post(`/projects/${projectId}/generate-srs`);
-      setWorkspace({ ...workspace, result: response.data.data });
-      setState({ status: 'idle', message: '' });
+      const result = response.data.data || {};
+      setWorkspace({ ...workspace, result });
+      setState({
+        status: result.generation_status === 'draft' ? 'error' : 'success',
+        message: result.generation_status === 'draft'
+          ? (result.generation_note || 'AI providers are still unavailable. The structured draft was preserved; retry when a provider is available.')
+          : 'AI SRS generation completed.',
+      });
     } catch (error) {
       setState({ status: 'error', message: apiError(error, 'SRS generation failed. Please try again.') });
     }
@@ -440,8 +446,14 @@ function PitchResults({ data, projectId, onResultUpdate }) {
     setGenerationState({ status: 'loading', message: 'Retrying AI SRS generation...' });
     try {
       const response = await api.post(`/projects/${projectId}/generate-srs`);
-      setGenerationState({ status: 'success', message: 'AI SRS generation completed.' });
-      onResultUpdate?.(response.data.data || {});
+      const result = response.data.data || {};
+      onResultUpdate?.(result);
+      setGenerationState({
+        status: result.generation_status === 'draft' ? 'error' : 'success',
+        message: result.generation_status === 'draft'
+          ? 'Retry did not complete; the saved draft remains available.'
+          : 'AI SRS generation completed.',
+      });
     } catch (error) {
       setGenerationState({ status: 'error', message: apiError(error, 'AI generation is unavailable. Your saved draft remains available.') });
     }

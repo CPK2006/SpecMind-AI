@@ -55,6 +55,9 @@ class AIProviderUnavailableError(RuntimeError):
 
 class GeminiService:
     MODEL_NAME = "gemini-2.5-flash"
+    # Full SRS responses include requirements, tests, and several diagrams;
+    # reasoning models can take longer than the former 45 second read timeout.
+    PROVIDER_READ_TIMEOUT_SECONDS = 180
     _gemini_lock = threading.Lock()
     _gemini_next_key = 0
     _provider_cooldowns: dict[str, float] = {}
@@ -105,7 +108,13 @@ class GeminiService:
                 if cooldown:
                     self._provider_cooldowns[cooldown_key] = time.monotonic() + cooldown
                 failures.append(f"{provider}: {category}")
-                logger.warning("AI provider=%s model=%s failure=%s", provider, model, category)
+                logger.warning(
+                    "AI provider=%s model=%s failure=%s exception_type=%s",
+                    provider,
+                    model,
+                    category,
+                    type(exc).__name__,
+                )
                 continue
 
             logger.info("AI provider=%s model=%s outcome=success", provider, model)
@@ -139,7 +148,7 @@ class GeminiService:
             client = genai.Client(
                 api_key=key,
                 http_options=types.HttpOptions(
-                    timeout=45_000,
+                    timeout=GeminiService.PROVIDER_READ_TIMEOUT_SECONDS * 1_000,
                     retry_options=types.HttpRetryOptions(attempts=1),
                 ),
             )
@@ -160,7 +169,12 @@ class GeminiService:
             url,
             headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
             json=payload,
-            timeout=45.0,
+            timeout=httpx.Timeout(
+                connect=15.0,
+                read=GeminiService.PROVIDER_READ_TIMEOUT_SECONDS,
+                write=30.0,
+                pool=15.0,
+            ),
         )
         if response.status_code == 402:
             raise BillingProviderError()
@@ -211,6 +225,14 @@ class GeminiService:
             if status in (401, 403):
                 return "invalid credentials or access denied", 300
             return f"request rejected (HTTP {status})", None
+        if isinstance(exc, httpx.ConnectTimeout):
+            return "connection timeout", 30
+        if isinstance(exc, httpx.ReadTimeout):
+            return "provider response timeout", 30
+        if isinstance(exc, httpx.WriteTimeout):
+            return "request write timeout", 30
+        if isinstance(exc, httpx.PoolTimeout):
+            return "connection pool timeout", 30
         if isinstance(exc, (httpx.TimeoutException, TimeoutError)):
             return "network timeout", 30
         if isinstance(exc, httpx.HTTPError):
@@ -319,6 +341,12 @@ class GeminiService:
         result["functional_requirements"] = functional
         result["non_functional_requirements"] = non_functional
         result["test_cases"] = normalized_cases
+        result.update(GeminiService._ensure_scores(
+            result,
+            functional,
+            non_functional,
+            normalized_cases,
+        ))
         result["confidence_reasons"] = result.get("confidence_reasons") or []
         result["confidence_issues"] = result.get("confidence_issues") or []
         return result
@@ -462,6 +490,49 @@ class GeminiService:
             "sequence_diagram": "sequenceDiagram\n  actor User\n  User->>UI: Upload SRS\n  UI->>API: Analyze source\n  API-->>UI: Normalized result",
         }
 
+    @staticmethod
+    def _ensure_scores(
+        quality: dict | None,
+        functional: list[dict],
+        non_functional: list[dict],
+        test_cases: list[dict],
+    ) -> dict:
+        """Fill missing report scores without replacing provider-generated scores.
+
+        Drafts are still useful when an AI provider is unavailable, so their
+        report must not display blank scores. This deterministic rubric measures
+        observable structure and test coverage, not semantic quality.
+        """
+        quality = dict(quality or {})
+        requirements = [*functional, *non_functional]
+        if requirements:
+            complete = sum(
+                sum(bool(item.get(field)) for field in ("title", "category", "description"))
+                + bool(item.get("acceptance_criteria"))
+                for item in requirements
+            )
+            completeness = complete / (len(requirements) * 4)
+        else:
+            completeness = 0.0
+
+        functional_ids = {item.get("id") for item in functional if item.get("id")}
+        covered_ids = {
+            item.get("requirement_id")
+            for item in test_cases
+            if item.get("requirement_id") in functional_ids
+        }
+        coverage = len(covered_ids) / len(functional_ids) if functional_ids else 0.0
+        fallback_quality = round(100 * (0.65 * completeness + 0.35 * coverage))
+        # These values do not include semantic AI validation, so confidence is
+        # intentionally capped below full certainty.
+        fallback_confidence = round(45 + 40 * (0.5 * completeness + 0.5 * coverage))
+
+        if quality.get("quality_score") is None:
+            quality["quality_score"] = fallback_quality
+        if quality.get("confidence_score") is None:
+            quality["confidence_score"] = fallback_confidence
+        return quality
+
     @classmethod
     def normalize_upload_result(cls, *, source_text: str, analysis: dict, test_cases: dict, quality: dict, refactored: dict | None = None, questions: dict | None = None) -> dict:
         """Normalize model drift into the stable Mode 2 contract used by the UI."""
@@ -539,6 +610,7 @@ class GeminiService:
             "unchanged": [],
             "removed": [],
         }
+        quality = cls._ensure_scores(quality, functional, non_functional, normalized_cases)
         return {
             "is_software_document": analysis.get("is_software_document", True),
             "title": refactored.get("title") or analysis.get("title") or "Improved Software Requirements Specification",
