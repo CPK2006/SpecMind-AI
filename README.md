@@ -1,77 +1,184 @@
-g# SpecMind AI
+# SpecMind AI
 
-AI-powered Requirements Intelligence Platform
+<p align="center">
+  <strong>Turn ideas and existing specifications into implementation-ready software requirements.</strong>
+</p>
 
----
+<p align="center">
+  <a href="https://github.com/CPK2006/SpecMind-AI">Repository</a> ·
+  <a href="http://localhost:5173">Web app</a> ·
+  <a href="http://localhost:8000/docs">API docs</a>
+</p>
 
-## Vision
+SpecMind AI is an AI-powered requirements intelligence platform for teams that want to move from ambiguous ideas to clear, testable, traceable engineering work. It combines a React workspace with a FastAPI API, PostgreSQL persistence, document parsing, multi-provider AI orchestration, quality review, test generation, diagram generation, and exportable SRS reports.
 
-Engineering Begins with Better Requirements.
+> **Project status:** Working local MVP. The core pitch and SRS-improvement workflows are implemented. Production hardening, deployment automation, and operational authentication policy are still in progress.
 
----
+## What SpecMind does
 
-## Problem
+### 1. Pitch an idea
 
-Existing AI tools generate text.
+Start with a product idea and context. SpecMind creates a project and generates a structured software requirements specification containing:
 
-Existing enterprise tools manage requirements.
+- Functional and non-functional requirements
+- User stories and acceptance criteria
+- Generated test cases
+- Requirement quality and confidence signals
+- Mermaid-compatible architecture and UML diagram source
+- An assembled SRS ready for review or export
 
-SpecMind AI bridges the gap by understanding, validating, improving, and tracing software requirements.
+### 2. Improve an existing SRS
 
----
+Upload a PDF or DOCX specification. SpecMind extracts the document text, analyzes requirement quality, identifies gaps, generates tests, proposes clarifying questions, and creates a refined improvement workspace without changing the original upload.
 
-## Features
+The workspace supports:
 
-- AI Business Analyst
-- Requirement Intelligence
-- Requirement Quality
-- Hidden Requirement Detection
-- Traceability
-- Engineering Knowledge Graph
-- UML Generation
-- Sprint Planning
-- Test Generation
-- Risk Analysis
+- Extracted and refined requirements
+- Quality issues and recommendations
+- Clarification questions and answer-driven regeneration
+- Selectable use cases
+- Rendered diagrams and editable diagram source
+- Linked test cases
+- Refactored SRS content
+- Change and quality reports
+- Project reopening from the dashboard
 
----
+## Product highlights
 
-## Workflows
+| Capability | Outcome |
+| --- | --- |
+| Requirements intelligence | Convert product intent into structured engineering artifacts |
+| Quality review | Surface ambiguity, missing constraints, risks, and improvement opportunities |
+| Test generation | Produce testable scenarios alongside requirements |
+| Traceability workspace | Keep requirements, tests, diagrams, and reports together |
+| AI provider resilience | Route across Ollama, NVIDIA, OpenRouter, and Gemini with failover |
+| Document workflows | Parse PDF/DOCX inputs and export generated SRS documents |
+| Diagram intelligence | Generate and repair Mermaid architecture/UML diagrams |
+| Project persistence | Save workspaces, reports, and project history in PostgreSQL |
 
-### Pitch an idea
+## Technology stack
 
-Create a project with an idea and context. SpecMind sends the pitch to the AI requirements pipeline and returns a structured SRS containing requirements, user stories, acceptance criteria, test cases, quality/confidence scores, and Mermaid-compatible UML/architecture diagram source.
+### Frontend
 
-The results workspace includes specification, diagram, test case, assembled SRS, and quality report tabs. SRS exports include DOCX, Markdown, JSON, and browser print-to-PDF.
+- **React 18** for the application UI
+- **Vite 5** for development and production builds
+- **Axios** for API communication
+- **Mermaid** and diagram utilities for visualizing generated architecture/UML content
+- CSS-based responsive workspace styling
 
-### Improve an existing SRS
+### Backend
 
-Upload a PDF or DOCX. SpecMind extracts the text, analyzes requirements, generates test cases, reviews quality, and returns a combined improvement report. The original uploaded document remains unchanged.
+- **Python 3.14+** runtime
+- **FastAPI** REST API with OpenAPI/Swagger documentation
+- **SQLAlchemy** data access and **Alembic** migrations
+- **PostgreSQL** database
+- **Pydantic settings and schemas**
+- **JWT authentication** with password hashing
+- PDF/DOCX parsing and DOCX export
 
-The improvement workspace includes extracted and refined requirements, clarification questions, selectable use cases, rendered Mermaid diagrams with source, linked tests, a refactored SRS, and a change and quality report. Answering questions regenerates and saves the complete updated workspace. Projects can be reopened from the dashboard.
+### AI and integrations
+
+- **Ollama** for local model execution
+- **NVIDIA** as the primary hosted provider when configured
+- **OpenRouter** as a hosted fallback
+- **Google Gemini** with configurable key rotation
+- Provider health cooldowns and request failover
+
+## Repository map
+
+```text
+.
+├── backend/       FastAPI app, AI services, migrations, tests, uploads
+├── frontend/      React/Vite web application
+├── docs/          Product, architecture, API, AI, testing, and deployment docs
+├── database/      Database documentation and workspace placeholder
+├── docker/        Container/deployment documentation and workspace placeholder
+├── assets/        Static project assets
+├── prompts/       Prompt resources and guidance
+├── knowledge/     Domain knowledge and requirement resources
+├── examples/      Example artifacts
+├── scripts/       Operational and developer scripts
+└── legacy/        Retained legacy materials
+```
 
 ## Run locally
 
-Start PostgreSQL, configure `backend/.env` from `backend/.env.example`, then run the backend and frontend in separate terminals. The backend API is at `http://localhost:8000` and the frontend is at `http://localhost:5173`.
+### Prerequisites
 
-The current authentication is an MVP browser-local flow and must be replaced by server-side authentication before production deployment.
+- Python 3.14 or a compatible supported Python version
+- Node.js and npm
+- PostgreSQL
+- Optional AI provider credentials, or a local Ollama installation
 
----
+### Configure the backend
 
-## Technology
+```powershell
+Copy-Item backend\.env.example backend\.env
+# Edit backend\.env with DATABASE_URL, SECRET_KEY, and provider credentials
+```
 
-AI requests use NVIDIA, OpenRouter, then Gemini, with Gemini key rotation. Configure provider credentials in the ignored `backend/.env`; see `backend/README.md` for setup. OpenRouter's low cost tier is a preference rather than a spending limit.
+Never commit `backend/.env`. It is ignored by Git; use `backend/.env.example` as the safe configuration template.
 
-React
+### Start the backend
 
-FastAPI
+```powershell
+Set-Location backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+alembic upgrade head
+python -m uvicorn app.main:app --reload --port 8000
+```
 
-PostgreSQL
+Backend endpoints:
 
-Gemini
+- API base: `http://localhost:8000/api/v1`
+- Swagger UI: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
 
-Docker
+### Start the frontend
 
----
+In a second terminal:
+
+```powershell
+Set-Location frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. Set `VITE_API_URL` if the API is hosted somewhere other than the default `http://localhost:8000/api/v1`.
+
+## Development and validation
+
+```powershell
+# Frontend
+Set-Location frontend
+npm run build
+npm test
+
+# Backend
+Set-Location backend
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The backend tests cover AI failover, provider behavior, parsing, ownership, diagram repair, upload flows, and workflow normalization. The frontend test suite covers diagram behavior.
+
+## API areas
+
+- `/api/v1/auth` — registration and login
+- `/api/v1/projects` — create, list, update, delete, reopen, generate SRS, repair diagrams, and export DOCX
+- `/api/v1/requirements` — upload, analyze, generate tests, quality review, reports, clarification questions, refactoring, and answer submission
+
+The generated OpenAPI contract at `/docs` is the authoritative reference for request and response schemas.
+
+## Security and production notes
+
+- Keep all API keys and database credentials in the ignored `backend/.env`.
+- Use a long random `SECRET_KEY` outside local development.
+- Review CORS origins, database permissions, upload limits, and logging before deployment.
+- AI provider credentials should be rotated if exposed.
+- Run migrations before starting a new environment.
 
 ## License
 

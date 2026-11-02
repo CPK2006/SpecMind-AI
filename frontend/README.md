@@ -1,6 +1,14 @@
 # SpecMind AI Frontend
 
-React/Vite interface for the two requirements workflows.
+React/Vite single-page workspace for creating, reviewing, improving, and exporting software requirements.
+
+## Stack
+
+- React 18
+- Vite 5
+- Axios
+- Mermaid 12
+- CSS-based responsive UI
 
 ## Run locally
 
@@ -9,13 +17,29 @@ npm install
 npm run dev
 ```
 
-The frontend uses `VITE_API_URL` when provided and otherwise connects to `http://localhost:8000/api/v1`.
+Open `http://localhost:5173`. The app uses `VITE_API_URL` when provided; otherwise it calls `http://localhost:8000/api/v1`.
 
-## User flow
+For a production build:
 
-1. Register locally, then sign in.
-2. Review previous projects on the dashboard.
-3. Create a project using **Pitch an idea** or **Improve an SRS**.
-4. View generated SRS/report scores, requirements, issues, test cases, and diagram source.
+```powershell
+npm run build
+npm run preview
+```
 
-The local authentication implementation is for the MVP only; it stores demo credentials in browser storage until backend authentication is implemented.
+## Main user flow
+
+1. Register or sign in.
+2. Review saved projects on the dashboard.
+3. Choose **Pitch an idea** or **Improve an SRS**.
+4. Inspect requirements, quality signals, tests, reports, and diagrams.
+5. Reopen saved workspaces or export a generated SRS from the backend.
+
+The frontend stores the JWT access token in session storage for the MVP. Production deployments should review token storage, session policy, CORS, and deployment security.
+
+## Tests
+
+```powershell
+npm test
+```
+
+Diagram behavior tests live in `tests/diagram.test.js`.

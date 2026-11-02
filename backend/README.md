@@ -1,26 +1,81 @@
-
 # SpecMind AI Backend
 
-FastAPI backend for the two SpecMind workflows:
+The backend is a FastAPI service that powers authentication, project workspaces, AI-driven requirement workflows, document processing, quality analysis, diagrams, and exports.
 
-- **Pitch**: create a project from an idea and generate a structured SRS through `POST /api/v1/projects/{project_id}/generate-srs`.
-- **Upload**: upload a PDF/DOCX SRS, then analyze it, generate test cases, run quality review, and combine results through `POST /api/v1/requirements/{requirement_id}/generate-report`.
+## Responsibilities
 
-## Local setup
+- JWT registration and login
+- Project ownership and workspace persistence
+- Pitch-to-SRS generation
+- PDF/DOCX upload and text extraction
+- Requirement analysis and quality review
+- Test-case generation
+- Clarification-question and answer workflows
+- Mermaid diagram generation and repair
+- DOCX SRS export
+- AI provider failover and cooldown handling
 
-Run commands from this directory. Copy `.env.example` to `.env`, set PostgreSQL plus one or more AI provider keys, then apply migrations. Requests fail over through NVIDIA, OpenRouter, and Gemini in that order. `GEMINI_API_KEYS` accepts a comma-separated key list; legacy `GEMINI_API_KEY` remains supported. NVIDIA defaults to the currently listed `z-ai/glm-5.3`; OpenRouter defaults to `openrouter/auto`. Provider models can be changed with `NVIDIA_MODEL` and `OPENROUTER_MODEL`. OpenRouter's low cost tier is a routing preference, not a fixed spend cap. A provider with a billing error is skipped for five minutes while the request continues to the next configured provider. Never commit `.env`; rotate credentials that have been shared or exposed:
+## Stack
+
+- Python 3.14+
+- FastAPI and Uvicorn
+- SQLAlchemy and Alembic
+- PostgreSQL
+- Pydantic settings and schemas
+- JWT and Argon2 password hashing
+- Ollama, NVIDIA, OpenRouter, and Gemini integrations
+
+## Setup
+
+Run from `backend`:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Edit `.env` with a PostgreSQL connection string, a strong `SECRET_KEY`, and one or more AI provider credentials. `backend/.env` is intentionally ignored and must never be committed.
+
+Apply the schema and start the API:
+
+```powershell
 alembic upgrade head
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-Swagger documentation is available at `http://localhost:8000/docs`.
+Useful URLs:
 
-Install `requirements-dev.txt` to run the backend regression suite with `python -m pytest`.
-Project workspaces are available at `GET /api/v1/projects/{project_id}/workspace`; use `GET /api/v1/projects/{project_id}/export/docx` for a complete DOCX SRS export.
+- Swagger UI: `http://localhost:8000/docs`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+- Health check: `http://localhost:8000/health`
+- API prefix: `http://localhost:8000/api/v1`
 
-The current frontend authentication is browser-local and is not a security boundary. Production authentication and project ownership must be added before deployment.
+## AI provider configuration
+
+Requests can use local Ollama and hosted NVIDIA, OpenRouter, and Gemini providers. Configure the relevant variables in `.env`:
+
+- `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_TIMEOUT_SECONDS`
+- `NVIDIA_API_KEY`, `NVIDIA_MODEL`
+- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`
+- `GEMINI_API_KEYS`, `GEMINI_API_KEY1`, or legacy `GEMINI_API_KEY`
+
+Provider errors are handled by the AI service so configured fallbacks can continue processing. A provider with a billing failure is temporarily cooled down rather than retried on every request.
+
+## API workflow surface
+
+- `auth.py` — register and login
+- `project.py` — project CRUD, workspace retrieval, SRS generation, diagram repair, DOCX export
+- `requirement.py` — upload, analyze, test generation, quality review, report generation, clarification, and refactoring
+
+Use the generated Swagger contract for exact payloads and response envelopes.
+
+## Tests
+
+```powershell
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The test suite includes parser, AI failover, provider, ownership, upload, diagram, and workflow normalization coverage.
