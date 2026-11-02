@@ -1,0 +1,48 @@
+project:
+  scope_path: "."
+  loc: 1675
+  languages: [python, javascript]
+  git: true
+  structure:
+    backend: "FastAPI/SQLAlchemy/Alembic backend with Gemini adapter, routers, services, models, schemas, utilities, and tests"
+    frontend: "React/Vite frontend with source components, package manifest, and development bundle"
+    docs: "Product, architecture, API, database, AI, testing, deployment, and project-management documentation areas"
+    database: "Database guidance and supporting assets"
+    docker: "Container/deployment guidance"
+  notes: "SpecMind AI is a small but cross-cutting brownfield product with two workflows: pitch-to-SRS generation and uploaded-SRS analysis/refactoring. It requires coordinated backend, frontend, persistence, AI, artifact, documentation, security, and runtime-validation work."
+
+assessment:
+  change_type: rewrite
+  rationale: |
+    The request is a comprehensive brownfield product completion effort spanning an existing FastAPI backend, React/Vite frontend, database migrations, provider abstraction, artifact generation, and two end-to-end workflows. Although the repository is small, the target behavior and architecture require coordinated redesign rather than a narrow upgrade.
+  transformations:
+    - fromStack: "Partial FastAPI upload-analysis workflow"
+      fromStackVersion: "existing"
+      toStack: "Versioned provider-independent two-mode SRS workflow platform"
+      toStackVersion: "requested product baseline"
+    - fromStack: "Partial React/Vite dashboard"
+      fromStackVersion: "existing"
+      toStack: "Complete two-mode React/Vite workflow dashboard"
+      toStackVersion: "requested product baseline"
+  grouping_needed: false
+  deep_planning: undecided
+
+progress_sync:
+  run_id: c51ceb21-949d-4e91-bf13-8368d4afa4cc
+  grouping_mode: none
+  execution_mode: undecided
+  plan_start_time: "2026-10-09T02:13:08.0352871Z"
+  plan_completed_time: ""
+  execution_start_time: ""
+  execution_completed_time: ""
+  validation_start_time: ""
+  validation_completed_time: ""
+  total_phases: 0
+  completed_phases: 0
+  total_modules: 2
+  completed_modules: 0
+  total_tasks: 0
+  completed_tasks: 0
+  total_commits: 0
+  build_verified: false
+  test_verified: false

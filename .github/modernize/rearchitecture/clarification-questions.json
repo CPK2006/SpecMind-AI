@@ -1,0 +1,630 @@
+{
+  "schema": "clarification-questions/v1",
+  "generated_at": "2026-10-09T00:00:00Z",
+  "user_input": "Work directly in the repository d:\\Projects\\SpecMind-AI and implement the complete remaining backlog for the SpecMind AI two-mode product. The user explicitly asked to do all todos first. Product requirements: Pitch mode generates a complete structured SRS with stable IDs, user stories, acceptance criteria, test cases, UML/architecture diagrams, quality/confidence scores, suggestions, and combined exports. Upload/improve mode accepts PDF/DOCX, preserves original, extracts/analyzes requirements and test cases, identifies ambiguity/omissions/risks, asks clarification questions, suggests and refactors into an improved SRS, generates diagrams/scores/reports/exports. Existing app is FastAPI/PostgreSQL/SQLAlchemy/Alembic/Gemini backend and React/Vite frontend. Implement canonical schemas, provider abstraction/fake-testable AI service, versioned prompts, workflow endpoints, persistence or coherent JSON artifact persistence, safe storage/parser behavior, readiness/CORS/config, exports/fallbacks, full frontend flows, docs, tests, and no secret exposure. Authentication can remain client-local but document it. Do not merely report a plan; eventually edit the repository. For this invocation, only run the clarification gate and return its READY/NEEDS_INPUT/BLOCKED token. Classification: brownfield rewrite, grouping_needed=false, target stack is the existing FastAPI/PostgreSQL/SQLAlchemy/Alembic/Gemini backend plus React/Vite frontend, frontend and backend are both in scope. Project facts: approximately 1675 nonblank source LOC, Python backend under backend/app with migrations/tests, JavaScript frontend under frontend/src with Vite, docs directories for product/architecture/API/database/AI/testing/deployment. Feasibility: feasible with staged implementation and deterministic fallbacks.",
+  "title": "Complete SpecMind AI two-mode product backlog",
+  "assessment_snapshot": {
+    "intro": "The supplied scenario covers a brownfield full-stack rewrite/implementation of an existing SpecMind AI product with two workflows:",
+    "bullets": [
+      "Frontend: React/Vite application is in scope, but no target UI component library, screenshots, design-token source, browser matrix, or responsive strategy is specified.",
+      "Backend: FastAPI/PostgreSQL/SQLAlchemy/Alembic/Gemini is specified, but API compatibility, data migration policy, and non-functional targets are not fully defined.",
+      "Product behavior: Pitch and Upload/improve capabilities, deterministic fallbacks, exports, local authentication, and testing are described at a high level."
+    ]
+  },
+  "proposed_outcome": "Complete the remaining SpecMind AI backlog in the existing repository, preserving the original source where required, delivering production-quality Pitch and Upload/improve flows across the React/Vite frontend and FastAPI backend, with stable schemas, safe persistence and parsing, testable AI-provider boundaries, documented local authentication, exports, tests, and deterministic fallback behavior.",
+  "scope": [
+    "frontend",
+    "backend",
+    "generic"
+  ],
+  "status": "answered",
+  "questions": [
+    {
+      "id": "F1",
+      "kit": "frontend",
+      "field": "target.framework",
+      "title": "Frontend framework target",
+      "question": "Which frontend framework and version should the completed implementation target?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "React (existing version)",
+      "default": null,
+      "prefilled": true,
+      "prefilled_value": "React/Vite existing frontend",
+      "answer": {
+        "value": "React/Vite existing frontend",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "React (existing version)",
+          "label": "React using the existing project version"
+        },
+        {
+          "value": "React 18",
+          "label": "React 18"
+        },
+        {
+          "value": "React 19",
+          "label": "React 19"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F2",
+      "kit": "frontend",
+      "field": "target.component_library",
+      "title": "UI component library",
+      "question": "Which component or UI library should the frontend use for the completed flows?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "Existing CSS and components",
+      "default": null,
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": null,
+        "source": "skipped"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "Existing CSS and components",
+          "label": "Preserve and extend the existing CSS/component approach"
+        },
+        {
+          "value": "shadcn/ui",
+          "label": "shadcn/ui"
+        },
+        {
+          "value": "MUI v5",
+          "label": "Material UI v5"
+        },
+        {
+          "value": "Ant Design v5",
+          "label": "Ant Design v5"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F3",
+      "kit": "frontend",
+      "field": "visual.screenshots",
+      "title": "Current UI references",
+      "question": "What screenshots, recordings, staging URLs, or other visual references define the current UI and required states?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": null,
+      "default": null,
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": null,
+        "source": "skipped"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "F4",
+      "kit": "frontend",
+      "field": "visual.design_system",
+      "title": "Design system source",
+      "question": "What design system, token source, or visual fidelity rule should govern the completed frontend?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "match existing pixel-by-pixel using extracted CSS custom properties",
+      "default": "match existing pixel-by-pixel using extracted CSS custom properties",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "match existing pixel-by-pixel using extracted CSS custom properties",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "match existing pixel-by-pixel using extracted CSS custom properties",
+          "label": "Match existing styling using extracted CSS custom properties"
+        },
+        {
+          "value": "use a supplied design system",
+          "label": "Use a supplied design system or token file"
+        },
+        {
+          "value": "new product design system",
+          "label": "Create a new SpecMind product design system"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F5",
+      "kit": "frontend",
+      "field": "compliance.accessibility",
+      "title": "Accessibility target",
+      "question": "Which accessibility standard should the completed frontend target?",
+      "importance": "recommended",
+      "impact": 4,
+      "recommended": "WCAG 2.1 AA",
+      "default": "WCAG 2.1 AA",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "WCAG 2.1 AA",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "WCAG 2.1 AA",
+          "label": "WCAG 2.1 AA"
+        },
+        {
+          "value": "WCAG 2.2 AA",
+          "label": "WCAG 2.2 AA"
+        },
+        {
+          "value": "none / not required",
+          "label": "No formal accessibility target"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F6",
+      "kit": "frontend",
+      "field": "compatibility.browsers",
+      "title": "Browser targets",
+      "question": "Which browsers and runtime targets must the completed frontend support?",
+      "importance": "recommended",
+      "impact": 3,
+      "recommended": null,
+      "default": "modern evergreen (Chrome, Firefox, Safari, Edge — latest 2 major versions)",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "modern evergreen (Chrome, Firefox, Safari, Edge — latest 2 major versions)",
+        "source": "default"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "F7",
+      "kit": "frontend",
+      "field": "responsive.breakpoints",
+      "title": "Responsive strategy",
+      "question": "What responsive and breakpoint strategy should the completed product use?",
+      "importance": "recommended",
+      "impact": 3,
+      "recommended": "mobile-first",
+      "default": "mobile-first using existing breakpoints detected from codebase",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "mobile-first using existing breakpoints detected from codebase",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "mobile-first",
+          "label": "Mobile-first"
+        },
+        {
+          "value": "desktop-first",
+          "label": "Desktop-first"
+        },
+        {
+          "value": "match current layout exactly",
+          "label": "Match the current layout exactly"
+        },
+        {
+          "value": "desktop-only",
+          "label": "Desktop-only"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F8",
+      "kit": "frontend",
+      "field": "i18n.locales",
+      "title": "Locales in scope",
+      "question": "Which locales and internationalization behavior are in scope?",
+      "importance": "optional",
+      "impact": 2,
+      "recommended": null,
+      "default": "preserve current locales; keep existing i18n library if present",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "preserve current locales; keep existing i18n library if present",
+        "source": "default"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "F9",
+      "kit": "frontend",
+      "field": "state_mgmt.preference",
+      "title": "Client state strategy",
+      "question": "What client-side state management strategy should be used?",
+      "importance": "optional",
+      "impact": 3,
+      "recommended": "preserve existing pattern",
+      "default": "preserve existing pattern if identifiable; otherwise recommend minimal (component state + server-state library)",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "preserve existing pattern if identifiable; otherwise recommend minimal (component state + server-state library)",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "preserve existing pattern",
+          "label": "Preserve the existing pattern"
+        },
+        {
+          "value": "component state plus server-state library",
+          "label": "Minimal component state plus a server-state library"
+        },
+        {
+          "value": "Redux Toolkit",
+          "label": "Redux Toolkit"
+        },
+        {
+          "value": "Zustand",
+          "label": "Zustand"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "F10",
+      "kit": "frontend",
+      "field": "routing.preference",
+      "title": "Routing strategy",
+      "question": "Which routing library or URL-preservation strategy should the frontend use?",
+      "importance": "optional",
+      "impact": 3,
+      "recommended": "preserve existing routing",
+      "default": "use the de-facto router for the chosen target framework",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "use the de-facto router for the chosen target framework",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "preserve existing routing",
+          "label": "Preserve existing routing behavior"
+        },
+        {
+          "value": "React Router",
+          "label": "React Router"
+        },
+        {
+          "value": "Vite-compatible framework default",
+          "label": "Use the Vite-compatible framework default"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "B1",
+      "kit": "backend",
+      "field": "target.framework",
+      "title": "Backend framework target",
+      "question": "Which backend framework and version should the completed implementation target?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "FastAPI (existing version)",
+      "default": null,
+      "prefilled": true,
+      "prefilled_value": "FastAPI existing backend",
+      "answer": {
+        "value": "FastAPI existing backend",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "FastAPI (existing version)",
+          "label": "FastAPI using the existing project version"
+        },
+        {
+          "value": "FastAPI latest compatible",
+          "label": "Latest compatible FastAPI version"
+        },
+        {
+          "value": "FastAPI pinned current stack",
+          "label": "FastAPI with the current pinned dependency stack"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "B2",
+      "kit": "backend",
+      "field": "api.contract_preservation",
+      "title": "API compatibility policy",
+      "question": "How should existing API routes, payloads, and status-code behavior be handled while completing the backlog?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "must preserve",
+      "default": "must preserve",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "must preserve",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "must preserve",
+          "label": "Preserve existing contracts"
+        },
+        {
+          "value": "can break with versioning",
+          "label": "Allow breaking changes only with versioning"
+        },
+        {
+          "value": "can break",
+          "label": "Redesign freely; no existing clients to protect"
+        },
+        {
+          "value": "partial: preserve documented and frontend-consumed endpoints",
+          "label": "Preserve documented and frontend-consumed endpoints"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "B3",
+      "kit": "backend",
+      "field": "data.migration_strategy",
+      "title": "Data migration approach",
+      "question": "What data and persistence strategy should be used for the existing PostgreSQL data and new SRS/workflow artifacts?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": "in-place",
+      "default": "TBD / assess in research phase",
+      "prefilled": true,
+      "prefilled_value": "persistence or coherent JSON artifact persistence; PostgreSQL/Alembic already present",
+      "answer": {
+        "value": "persistence or coherent JSON artifact persistence; PostgreSQL/Alembic already present",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "in-place",
+          "label": "In-place schema evolution"
+        },
+        {
+          "value": "new schema",
+          "label": "New schema with migration from existing data"
+        },
+        {
+          "value": "dual-write",
+          "label": "Dual-write transition"
+        },
+        {
+          "value": "no migration",
+          "label": "Leave the database untouched"
+        },
+        {
+          "value": "TBD / assess in research phase",
+          "label": "Assess during implementation research"
+        },
+        {
+          "value": "coherent JSON artifact persistence",
+          "label": "Use coherent JSON artifacts where relational persistence is not yet required"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "B4",
+      "kit": "backend",
+      "field": "auth.framework",
+      "title": "Authentication boundary",
+      "question": "What authentication and authorization behavior should the completed product provide?",
+      "importance": "recommended",
+      "impact": 3,
+      "recommended": "client-local authentication only",
+      "default": "preserve existing auth mechanism; detect from codebase",
+      "prefilled": true,
+      "prefilled_value": "Authentication can remain client-local but document it",
+      "answer": {
+        "value": "Authentication can remain client-local but document it",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "client-local authentication only",
+          "label": "Keep authentication client-local and document the limitation"
+        },
+        {
+          "value": "preserve existing auth mechanism",
+          "label": "Preserve any existing backend mechanism"
+        },
+        {
+          "value": "Entra ID / Azure AD",
+          "label": "Use Microsoft Entra ID"
+        },
+        {
+          "value": "JWT",
+          "label": "Use JWT-based authentication"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "B5",
+      "kit": "backend",
+      "field": "nfr.sla",
+      "title": "Performance and availability targets",
+      "question": "What latency, throughput, availability, or AI workflow completion targets should be treated as acceptance criteria?",
+      "importance": "recommended",
+      "impact": 3,
+      "recommended": null,
+      "default": "match current production baseline; no regression",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "match current production baseline; no regression",
+        "source": "default"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "G1",
+      "kit": "generic",
+      "field": "success.definition",
+      "title": "Definition of done",
+      "question": "What exact outcome defines completion of the remaining SpecMind AI backlog?",
+      "importance": "required",
+      "impact": 5,
+      "recommended": null,
+      "default": "feature parity with the current system; all existing user-facing behaviors preserved",
+      "prefilled": true,
+      "prefilled_value": "All remaining todos implemented for both Pitch and Upload/improve modes, with stable schemas, workflows, exports, safe persistence/parsing, docs, tests, and no secret exposure",
+      "answer": {
+        "value": "All remaining todos implemented for both Pitch and Upload/improve modes, with stable schemas, workflows, exports, safe persistence/parsing, docs, tests, and no secret exposure",
+        "source": "user"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "G2",
+      "kit": "generic",
+      "field": "out_of_scope",
+      "title": "Explicit exclusions",
+      "question": "What components, behaviors, integrations, or product changes must not be modified?",
+      "importance": "recommended",
+      "impact": 3,
+      "recommended": null,
+      "default": "no explicit exclusions; agent will infer from project structure",
+      "prefilled": true,
+      "prefilled_value": "No explicit exclusions beyond keeping authentication client-local and following the existing stack",
+      "answer": {
+        "value": "No explicit exclusions beyond keeping authentication client-local and following the existing stack",
+        "source": "user"
+      },
+      "depends_on": null,
+      "type": "text"
+    },
+    {
+      "id": "G3",
+      "kit": "generic",
+      "field": "existing_tests.posture",
+      "title": "Existing test policy",
+      "question": "How should the existing tests be treated while completing the backlog?",
+      "importance": "recommended",
+      "impact": 4,
+      "recommended": "must pass",
+      "default": "must pass",
+      "prefilled": false,
+      "prefilled_value": null,
+      "answer": {
+        "value": "must pass",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "must pass",
+          "label": "All existing tests must pass"
+        },
+        {
+          "value": "can rewrite",
+          "label": "Tests may be replaced with equivalent coverage"
+        },
+        {
+          "value": "partial: preserve and extend relevant tests",
+          "label": "Preserve and extend relevant tests"
+        },
+        {
+          "value": "ignore",
+          "label": "Ignore the current suite and write new tests"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "G4",
+      "kit": "generic",
+      "field": "target.output_location",
+      "title": "Implementation location",
+      "question": "Where should the completed implementation be written for this brownfield rewrite?",
+      "importance": "required",
+      "impact": 4,
+      "recommended": "in-place",
+      "default": "new sibling directory: SpecMind-AI-new",
+      "prefilled": true,
+      "prefilled_value": "d:\\Projects\\SpecMind-AI (existing repository, in place)",
+      "answer": {
+        "value": "d:\\Projects\\SpecMind-AI (existing repository, in place)",
+        "source": "user"
+      },
+      "depends_on": null,
+      "options": [
+        {
+          "value": "in-place",
+          "label": "Modify the existing repository in place"
+        },
+        {
+          "value": "SpecMind-AI-new",
+          "label": "Create a new sibling directory named SpecMind-AI-new"
+        }
+      ],
+      "allow_other": true,
+      "type": "single_select"
+    },
+    {
+      "id": "G5",
+      "kit": "generic",
+      "field": "constraints.additional",
+      "title": "Additional constraints",
+      "question": "What additional requirements, exclusions, dependencies, compliance rules, or operational constraints should govern implementation?",
+      "importance": "optional",
+      "impact": 3,
+      "recommended": null,
+      "default": "None beyond the decisions listed in this specification.",
+      "prefilled": true,
+      "prefilled_value": "No secret exposure; deterministic fallbacks; preserve uploaded originals; document client-local authentication; complete all remaining todos before stopping.",
+      "answer": {
+        "value": "No secret exposure; deterministic fallbacks; preserve uploaded originals; document client-local authentication; complete all remaining todos before stopping.",
+        "source": "user"
+      },
+      "depends_on": null,
+      "type": "text"
+    }
+  ]
+}
